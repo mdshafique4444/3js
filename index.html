@@ -50,7 +50,7 @@
       controls.enableDamping = true; // Smooth dragging
       controls.dampingFactor = 0.1;
 
-      // Globe with transparent background and a fixed background image
+      // Globe with reversed background image and transparent globe
       const globe = new ThreeGlobe()
         .globeImageUrl("https://unpkg.com/three-globe@2.35.2/example/img/night-sky.png") // Background image
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png");
@@ -58,10 +58,9 @@
       globe.scale.set(3, 3, 3); // Scale for fullscreen appearance
       scene.add(globe);
 
-      // Add lighting
-      const light = new THREE.PointLight(0xffffff, 1.2);
-      light.position.set(200, 200, 300);
-      scene.add(light);
+      // Remove direct spotlight and use ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Softer ambient light
+      scene.add(ambientLight);
 
       // Pins and Country Names
       const countryPins = [
