@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Three Globe Example</title>
+  <title>Interactive Globe</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://unpkg.com/three-globe"></script>
   <style>
     body, html {
@@ -37,60 +38,77 @@
       // Scene and Camera
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(
-        50, // Narrower FOV for a closer look
+        50,
         globeContainer.clientWidth / globeContainer.clientHeight,
         0.1,
         2000
       );
-      camera.position.z = 300; // Move the camera closer to the globe
+      camera.position.z = 400;
+
+      // Orbit Controls for Dragging
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; // Smooth dragging
+      controls.dampingFactor = 0.1;
 
       // High-resolution textures for the globe
       const globe = new ThreeGlobe()
-        .globeImageUrl("https://upload.wikimedia.org/wikipedia/commons/3/3c/Earth_map_large.jpg") // High-res image
+        .globeImageUrl("https://upload.wikimedia.org/wikipedia/commons/3/3c/Earth_map_large.jpg") // High-res texture
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png");
-
-      globe.scale.set(3, 3, 3); // Scale to make it fullscreen
-
+      const globeRadius = 100; // Explicit globe radius
+      globe.scale.set(3, 3, 3); // Scale for fullscreen appearance
       scene.add(globe);
 
       // Add lighting
       const light = new THREE.PointLight(0xffffff, 1.2);
-      light.position.set(200, 200, 300); // Adjust position for better lighting
+      light.position.set(200, 200, 300);
       scene.add(light);
 
-      // Dots for random countries
+      // Pins and Country Names
       const countryPins = [
-        { lat: 37.7749, lng: -122.4194 }, // San Francisco, USA
-        { lat: 48.8566, lng: 2.3522 },   // Paris, France
-        { lat: 35.6895, lng: 139.6917 }, // Tokyo, Japan
-        { lat: -33.8688, lng: 151.2093 }, // Sydney, Australia
-        { lat: 55.7558, lng: 37.6173 }   // Moscow, Russia
+        { lat: 37.7749, lng: -122.4194, name: "San Francisco, USA" },
+        { lat: 48.8566, lng: 2.3522, name: "Paris, France" },
+        { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
+        { lat: -33.8688, lng: 151.2093, name: "Sydney, Australia" },
+        { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" }
       ];
 
-      const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
-      const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8); // Small spheres for pins
-
-      countryPins.forEach(({ lat, lng }) => {
+      countryPins.forEach(({ lat, lng, name }) => {
+        // Pin (Dot)
+        const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
 
-        // Convert lat/lng to 3D coordinates on the globe
-        const radius = 100; // Same as the globe's radius
-        const phi = (90 - lat) * (Math.PI / 180); // Latitude to polar angle
-        const theta = (lng + 180) * (Math.PI / 180); // Longitude to azimuthal angle
+        // Convert lat/lng to 3D coordinates
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lng + 180) * (Math.PI / 180);
 
         pin.position.set(
-          radius * Math.sin(phi) * Math.cos(theta),
-          radius * Math.cos(phi),
-          radius * Math.sin(phi) * Math.sin(theta)
+          globeRadius * Math.sin(phi) * Math.cos(theta),
+          globeRadius * Math.cos(phi),
+          globeRadius * Math.sin(phi) * Math.sin(theta)
         );
-
         scene.add(pin);
+
+        // Country Name (Label)
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        context.font = "30px Arial";
+        context.fillStyle = "white";
+        context.fillText(name, 0, 30);
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const label = new THREE.Sprite(spriteMaterial);
+
+        label.scale.set(20, 10, 1); // Adjust label size
+        label.position.copy(pin.position.clone().multiplyScalar(1.1)); // Offset label slightly outward
+        scene.add(label);
       });
 
       // Animation
       const animate = () => {
         requestAnimationFrame(animate);
-        globe.rotation.y += 0.002; // Rotate slowly
+        globe.rotation.y += 0.002; // Slow rotation
+        controls.update();
         renderer.render(scene, camera);
       };
       animate();
