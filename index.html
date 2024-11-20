@@ -37,44 +37,60 @@
       // Scene and Camera
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(
-        75,
+        50, // Narrower FOV for a closer look
         globeContainer.clientWidth / globeContainer.clientHeight,
         0.1,
-        1000
+        2000
       );
-      camera.position.z = 600; // Move the camera back to fit the larger globe
+      camera.position.z = 300; // Move the camera closer to the globe
 
-      // Globe
+      // High-resolution textures for the globe
       const globe = new ThreeGlobe()
-        .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
+        .globeImageUrl("https://coregccsi.wpenginepowered.com/wp-content/uploads/2024/11/Globe_1-removebg-preview.png") // High-res image
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png");
-      
-      globe.scale.set(1.5, 1.5, 1.5); // Make the globe larger
 
-      // Add random pins (latitude, longitude)
-      const countryPins = [
-        { lat: 37.7749, lng: -122.4194, size: 1, color: "red" }, // San Francisco, USA
-        { lat: 48.8566, lng: 2.3522, size: 1, color: "blue" },   // Paris, France
-        { lat: 35.6895, lng: 139.6917, size: 1, color: "green" }, // Tokyo, Japan
-        { lat: -33.8688, lng: 151.2093, size: 1, color: "yellow" }, // Sydney, Australia
-        { lat: 55.7558, lng: 37.6173, size: 1, color: "purple" } // Moscow, Russia
-      ];
-
-      globe
-        .pointsData(countryPins)
-        .pointAltitude("size")
-        .pointColor("color");
+      globe.scale.set(3, 3, 3); // Scale to make it fullscreen
 
       scene.add(globe);
 
       // Add lighting
-      const light = new THREE.AmbientLight(0xffffff, 1);
+      const light = new THREE.PointLight(0xffffff, 1.2);
+      light.position.set(200, 200, 300); // Adjust position for better lighting
       scene.add(light);
+
+      // Dots for random countries
+      const countryPins = [
+        { lat: 37.7749, lng: -122.4194 }, // San Francisco, USA
+        { lat: 48.8566, lng: 2.3522 },   // Paris, France
+        { lat: 35.6895, lng: 139.6917 }, // Tokyo, Japan
+        { lat: -33.8688, lng: 151.2093 }, // Sydney, Australia
+        { lat: 55.7558, lng: 37.6173 }   // Moscow, Russia
+      ];
+
+      const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red color
+      const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8); // Small spheres for pins
+
+      countryPins.forEach(({ lat, lng }) => {
+        const pin = new THREE.Mesh(pinGeometry, pinMaterial);
+
+        // Convert lat/lng to 3D coordinates on the globe
+        const radius = 100; // Same as the globe's radius
+        const phi = (90 - lat) * (Math.PI / 180); // Latitude to polar angle
+        const theta = (lng + 180) * (Math.PI / 180); // Longitude to azimuthal angle
+
+        pin.position.set(
+          radius * Math.sin(phi) * Math.cos(theta),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+
+        scene.add(pin);
+      });
 
       // Animation
       const animate = () => {
         requestAnimationFrame(animate);
-        globe.rotation.y += 0.005;
+        globe.rotation.y += 0.002; // Rotate slowly
         renderer.render(scene, camera);
       };
       animate();
