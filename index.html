@@ -57,23 +57,14 @@
       scene.add(ambientLight);
 
       // Pin Data (lat/lng and names)
-      const places = [
-  { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" },
-  { lat: 48.8566, lng: 2.3522, name: "Paris, France" },
-  { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" },
-  { lat: 37.7749, lng: -122.4194, name: "San Francisco, USA" },
-  { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
-];
-
-globe
-  .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-day.jpg")
-  .pointsData(places)
-  .pointAltitude(0.05) // Pin height
-  .pointColor(() => "red");
-
-  places.forEach(place => {
-  console.log(`Placing pin at: ${place.name} (Lat: ${place.lat}, Lng: ${place.lng})`);
-});
+      const pinData = [
+      { lat: 37.7749, lng: -122.4194, name: "San Francisco, USA" },
+      { lat: 48.8566, lng: 2.3522, name: "Paris, France" },
+      { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
+      { lat: -33.8688, lng: 151.2093, name: "Sydney, Australia" },
+      { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" },
+      { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" }
+      ];
 
       // Pin and Label Rendering
       const pins = new THREE.Group(); // Group to hold all pins
