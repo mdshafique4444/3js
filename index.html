@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Globe with Map</title>
+  <title>Interactive Globe with Fixed Pins</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://unpkg.com/three-globe"></script>
@@ -47,7 +47,7 @@
 
       // Globe with high-quality map texture
       const globe = new ThreeGlobe()
-        .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg") // Political/physical map texture
+        .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-dark.jpg") // Map texture
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png"); // Elevation data
       globe.scale.set(3, 3, 3); // Larger globe scale
       scene.add(globe);
@@ -56,8 +56,8 @@
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Softer light
       scene.add(ambientLight);
 
-      // Pins and Country Names
-      const countryPins = [
+      // Pin Data (lat/lng and names)
+      const pinData = [
         { lat: 37.7749, lng: -122.4194, name: "San Francisco, USA" },
         { lat: 48.8566, lng: 2.3522, name: "Paris, France" },
         { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
@@ -65,17 +65,17 @@
         { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" }
       ];
 
-      countryPins.forEach(({ lat, lng, name }) => {
-        // Pin (Dot)
+      // Pin and Label Rendering
+      pinData.forEach(({ lat, lng, name }) => {
+        // Create the Pin (Dot)
         const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
 
-        // Convert lat/lng to 3D coordinates
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lng + 180) * (Math.PI / 180);
-
-        const radius = 100; // Globe radius
+        // Calculate 3D position from lat/lng
+        const phi = (90 - lat) * (Math.PI / 180); // Latitude
+        const theta = (lng + 180) * (Math.PI / 180); // Longitude
+        const radius = 100; // Radius of globe
         pin.position.set(
           radius * Math.sin(phi) * Math.cos(theta),
           radius * Math.cos(phi),
@@ -83,25 +83,26 @@
         );
         scene.add(pin);
 
-        // Country Name (Label)
+        // Create the Label
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
-        context.font = "40px Arial"; // Larger font size
+        context.font = "20px Arial"; // Font size
         context.fillStyle = "white";
-        context.fillText(name, 0, 40);
+        context.fillText(name, 0, 30);
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
         const label = new THREE.Sprite(spriteMaterial);
 
-        label.scale.set(30, 15, 1); // Adjust label size
-        label.position.copy(pin.position.clone().multiplyScalar(1.1)); // Offset label outward
+        // Position Label slightly offset from the pin
+        label.scale.set(30, 15, 1); // Size of the label
+        label.position.copy(pin.position.clone().multiplyScalar(1.1)); // Offset from the pin
         scene.add(label);
       });
 
       // Animation
       const animate = () => {
         requestAnimationFrame(animate);
-        globe.rotation.y += 0.002; // Slow rotation
+        globe.rotation.y += 0.002; // Slow auto-rotation
         controls.update();
         renderer.render(scene, camera);
       };
