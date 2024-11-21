@@ -103,10 +103,14 @@
       scene.add(pins);
 
       // Animation
+      let isMouseOver = false;
+
       const animate = () => {
         requestAnimationFrame(animate);
-        globe.rotation.y += 0.002; // Slow auto-rotation
-        pins.rotation.y += 0.002; // Sync pins rotation with the globe
+        if (!isMouseOver) {
+          globe.rotation.y += 0.002; // Slow auto-rotation
+          pins.rotation.y += 0.002; // Sync pins rotation with the globe
+        }
         controls.update();
         renderer.render(scene, camera);
       };
@@ -117,6 +121,14 @@
         renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
         camera.aspect = globeContainer.clientWidth / globeContainer.clientHeight;
         camera.updateProjectionMatrix();
+      });
+
+      // Mouse hover detection to stop rotation
+      globeContainer.addEventListener('mouseover', () => {
+        isMouseOver = true;
+      });
+      globeContainer.addEventListener('mouseout', () => {
+        isMouseOver = false;
       });
     });
   </script>
