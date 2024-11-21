@@ -50,18 +50,17 @@
       controls.enableDamping = true; // Smooth dragging
       controls.dampingFactor = 0.1;
 
-      // High-resolution textures for the globe
+      // Globe with reversed background image and transparent globe
       const globe = new ThreeGlobe()
-        .globeImageUrl("https://coregccsi.wpenginepowered.com/wp-content/uploads/2024/11/Globe_1-removebg-preview.png") // High-res texture
+        .globeImageUrl("https://unpkg.com/three-globe@2.35.2/example/img/night-sky.png") // Background image
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png");
       const globeRadius = 100; // Explicit globe radius
       globe.scale.set(3, 3, 3); // Scale for fullscreen appearance
       scene.add(globe);
 
-      // Add lighting
-      const light = new THREE.PointLight(0xffffff, 1.2);
-      light.position.set(200, 200, 300);
-      scene.add(light);
+      // Remove direct spotlight and use ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Softer ambient light
+      scene.add(ambientLight);
 
       // Pins and Country Names
       const countryPins = [
@@ -92,14 +91,14 @@
         // Country Name (Label)
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
-        context.font = "30px Arial";
+        context.font = "40px Arial"; // Larger font size
         context.fillStyle = "white";
-        context.fillText(name, 0, 30);
+        context.fillText(name, 0, 40);
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
         const label = new THREE.Sprite(spriteMaterial);
 
-        label.scale.set(20, 10, 1); // Adjust label size
+        label.scale.set(30, 15, 1); // Adjust label size
         label.position.copy(pin.position.clone().multiplyScalar(1.1)); // Offset label slightly outward
         scene.add(label);
       });
