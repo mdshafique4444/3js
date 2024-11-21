@@ -63,7 +63,7 @@
         { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
         { lat: -33.8688, lng: 151.2093, name: "Sydney, Australia" },
         { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" },
-        { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" } // Adding Faisalabad
+        { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" } // Faisalabad coordinates
       ];
 
       // Pin and Label Rendering
@@ -71,13 +71,13 @@
       pinData.forEach(({ lat, lng, name }) => {
         // Create the Pin (Dot)
         const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
+        const pinGeometry = new THREE.SphereGeometry(2, 8, 8); // Slightly larger pin
         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
 
         // Calculate 3D position from lat/lng
         const phi = (90 - lat) * (Math.PI / 180); // Latitude
         const theta = (lng + 180) * (Math.PI / 180); // Longitude
-        const radius = 100; // Globe radius
+        const radius = 100; // Globe radius, try changing to see effect
         pin.position.set(
           radius * Math.sin(phi) * Math.cos(theta),
           radius * Math.cos(phi),
