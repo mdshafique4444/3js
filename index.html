@@ -24,12 +24,12 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const globeContainer = document.getElementById("globe-container");
-  
+
       // Renderer setup
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
       globeContainer.appendChild(renderer.domElement);
-  
+
       // Scene and Camera
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(
@@ -39,23 +39,23 @@
         2000
       );
       camera.position.z = 400;
-  
+
       // Orbit Controls for Dragging
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.1;
-  
-      // Globe with bright map texture
+
+      // Globe with verified texture
       const globe = new ThreeGlobe()
-  .globeImageUrl("//unpkg.com/three-globe/example/img/earth-night.jpg") // Verified political map
-  .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png"); // Elevation data
-    globe.scale.set(3, 3, 3); // Adjust globe scale
-    scene.add(globe);
-  
+        .globeImageUrl("https://raw.githubusercontent.com/chrisrzhou/earth-globe/master/static/images/earth-dark.jpg") // Verified map texture
+        .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png"); // Elevation data
+      globe.scale.set(3, 3, 3); // Adjust globe scale
+      scene.add(globe);
+
       // Add Ambient Light for balanced lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Softer light
       scene.add(ambientLight);
-  
+
       // Pin Data (lat/lng and names)
       const pinData = [
         { lat: 37.7749, lng: -122.4194, name: "San Francisco, USA" },
@@ -63,28 +63,28 @@
         { lat: 35.6895, lng: 139.6917, name: "Tokyo, Japan" },
         { lat: -33.8688, lng: 151.2093, name: "Sydney, Australia" },
         { lat: 55.7558, lng: 37.6173, name: "Moscow, Russia" },
-        { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" }
+        { lat: 31.4504, lng: 73.1350, name: "Faisalabad, Pakistan" } // Adding Faisalabad
       ];
-  
+
       // Pin and Label Rendering
       const pins = new THREE.Group(); // Group to hold all pins
-      const radius = 100; // Radius of globe
       pinData.forEach(({ lat, lng, name }) => {
         // Create the Pin (Dot)
         const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const pinGeometry = new THREE.SphereGeometry(1.5, 8, 8);
         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
-  
+
         // Calculate 3D position from lat/lng
         const phi = (90 - lat) * (Math.PI / 180); // Latitude
         const theta = (lng + 180) * (Math.PI / 180); // Longitude
+        const radius = 100; // Globe radius
         pin.position.set(
           radius * Math.sin(phi) * Math.cos(theta),
           radius * Math.cos(phi),
           radius * Math.sin(phi) * Math.sin(theta)
         );
         pins.add(pin);
-  
+
         // Create the Label
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
@@ -94,37 +94,24 @@
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
         const label = new THREE.Sprite(spriteMaterial);
-  
+
         // Position Label slightly offset from the pin
         label.scale.set(30, 15, 1); // Size of the label
         label.position.copy(pin.position.clone().multiplyScalar(1.1)); // Offset from the pin
         pins.add(label);
       });
       scene.add(pins);
-  
-      // Control Rotation
-      let autoRotate = true; // Auto-rotate flag
-  
+
       // Animation
       const animate = () => {
         requestAnimationFrame(animate);
-        if (autoRotate) {
-          globe.rotation.y += 0.002; // Slow auto-rotation
-          pins.rotation.y += 0.002; // Sync pins rotation with the globe
-        }
+        globe.rotation.y += 0.002; // Slow auto-rotation
+        pins.rotation.y += 0.002; // Sync pins rotation with the globe
         controls.update();
         renderer.render(scene, camera);
       };
       animate();
-  
-      // Stop rotation on hover
-      renderer.domElement.addEventListener("mouseenter", () => {
-        autoRotate = false; // Stop auto-rotation
-      });
-      renderer.domElement.addEventListener("mouseleave", () => {
-        autoRotate = true; // Resume auto-rotation
-      });
-  
+
       // Handle window resize
       window.addEventListener("resize", () => {
         renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
@@ -133,6 +120,5 @@
       });
     });
   </script>
-  
 </body>
 </html>
